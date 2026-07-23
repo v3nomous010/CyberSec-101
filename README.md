@@ -1,8 +1,6 @@
 # CyberSec-101
 A growing collection of cyber-security notes — concepts, definitions, and key takeaways, organized for quick reference.
-<p align="center">
-  <img src="https://raw.githubusercontent.com/github/explore/main/topics/cyber-security/cyber-security.png" width="120" alt="Cybersecurity Icon"/>
-</p>
+
 
 <h1 align="center">🔐 Cybersecurity Notes</h1>
 
