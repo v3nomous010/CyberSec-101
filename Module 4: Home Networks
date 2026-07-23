@@ -1,0 +1,150 @@
+# Module 4: Home Networks
+
+## 4.1 Home Network Basics
+
+### 4.1.2 Components of a Home Network
+Devices that may connect to a home network (besides an integrated router):
+- Desktop computers
+- Gaming systems
+- Smart TV systems
+- Printers
+- Scanners
+- Security cameras
+- Telephones
+- Climate control devices
+
+- As new technologies emerge, more household functions will rely on the network for connectivity and control.
+- A typical home setup: ISP → Router → connects to Smart TV, Laptop, Smartphone, Gaming Console, Entertainment System (all part of the **Home Wireless Local Area Network / WLAN**).
+
+### 4.1.3 Typical Home Network Routers
+Home/small business routers typically have **two primary types of ports**:
+
+| Port Type | Description |
+|---|---|
+| **Ethernet Ports** | Connect to the internal switch portion of the router; usually labeled "Ethernet" or "LAN." All devices connected here are on the **same local network**. |
+| **Internet Port** | Connects the router to a *different* network (e.g., to a cable/DSL modem for internet access). |
+
+- Many home routers also include a **radio antenna** and built-in **wireless access point**.
+- By default, wireless devices are on the **same local network** as devices plugged into the LAN switch ports.
+- The **internet port** is the only port on a different network by default.
+
+### 4.1.4 Check Your Understanding – Answers
+1. **False** – a home router does NOT only provide wired access; it typically includes wireless too.
+2. **Ethernet port** – used to connect a wired device to the internal switch of the home router.
+
+---
+
+## 4.2 Network Technologies in the Home
+
+### 4.2.1 LAN Wireless Frequencies
+- Most home network wireless tech uses the **unlicensed 2.4 GHz and 5 GHz** frequency bands.
+- **Bluetooth** uses the 2.4 GHz band:
+  - Low-speed, short-range communication.
+  - Advantage: one-to-many communication (can talk to many devices at once).
+  - Preferred for peripherals (wireless mice, keyboards, printers) and audio (speakers, headphones).
+- **IEEE 802.11 (Wi-Fi)** also uses 2.4 GHz and 5 GHz bands:
+  - Transmits at a much higher power level than Bluetooth → greater range and improved throughput.
+- Certain areas of the electromagnetic spectrum can be used **without a permit**.
+- Spectrum reference points:
+  - Cordless phones: 902–928 MHz
+  - IEEE 802.11 b/g/n/ad: 2.400–2.4835 GHz
+  - IEEE 802.11 a/n/ac/ad: 5.725–5.850 GHz
+
+### 4.2.2 Wired Network Technologies
+- Some devices still benefit from a **wired switch connection** (not shared with other network users).
+- Most common wired protocol: **Ethernet** — a suite of protocols for communication over a wired LAN.
+- Directly connected devices typically use an **Ethernet patch cable** (usually unshielded twisted pair/UTP) with **RJ-45 connectors**.
+- Newer homes may already have Ethernet wall jacks; homes without UTP wiring can use technologies like **powerline** for wired connectivity.
+
+**Wired Technologies:**
+| Technology | Description |
+|---|---|
+| **Category 5e Cable** | Most common LAN wiring; made of 4 twisted wire pairs to reduce electrical interference |
+| **Coaxial Cable** | Inner wire surrounded by a tubular insulating layer, then a tubular conducting shield; usually has an external insulating sheath/jacket |
+| **Fiber-Optic Cable** | Glass or plastic, about the diameter of a human hair; carries digital info at very high speeds over long distances; very high bandwidth |
+
+### 4.2.3 Check Your Understanding – Answers
+1. **True** – certain areas of the electromagnetic spectrum can be used without a permit.
+2. **False** – Wi-Fi, Bluetooth, and cordless phones do NOT all use the same frequency ranges.
+3. **Coaxial cable** – has an inner wire surrounded by a tubular insulating layer, then a tubular conducting shield.
+
+---
+
+## 4.3 Wireless Standards
+
+### 4.3.1 Wi-Fi Networks
+- Wireless standards ensure devices can communicate — specifying RF spectrum used, data rates, transmission methods, etc.
+- **IEEE (Institute of Electrical and Electronics Engineers)** — main organization creating wireless technical standards.
+- **IEEE 802.11** standard governs the WLAN environment; amendments describe different wireless communication standards.
+- Wireless LAN standards collectively = **Wi-Fi**, using 2.4 GHz and 5 GHz bands.
+- **Wi-Fi Alliance** — tests wireless LAN devices from different manufacturers; the **Wi-Fi logo** on a device means it meets standards and should work with other same-standard devices.
+- Standards constantly improve connectivity/speed — manufacturers implement new standards quickly.
+
+### 4.3.2 Wireless Settings
+Key wireless router settings:
+
+| Setting | Description |
+|---|---|
+| **Network Mode** | Type of technology supported (802.11b, 802.11g, 802.11n, or Mixed Mode) |
+| **Network Name (SSID)** | Identifies the WLAN; all devices in the WLAN must use the same SSID |
+| **Standard Channel** | Channel used for communication; default = Auto (AP determines the optimum channel) |
+| **SSID Broadcast** | Whether the SSID is broadcast to devices in range; default = Enabled |
+
+- **Network Mode details:**
+  - If all devices use the same 802.11 standard, maximum speed for that standard is achieved.
+  - If the AP only accepts one standard, non-matching devices can't connect.
+  - **Mixed mode**: supports devices using any existing Wi-Fi standard — useful for older devices.
+- **SSID details:**
+  - Case-sensitive, alphanumeric, up to **32 characters**.
+  - Sent in the header of all frames transmitted over the WLAN.
+  - Tells wireless stations (STAs) which WLAN they belong to and who they can communicate with.
+  - Essentially the "name" of the network.
+  - Routers broadcast SSID by default, letting clients auto-discover the network name.
+  - If SSID broadcast is disabled, the SSID must be entered manually on devices.
+  - Disabling SSID broadcast makes it harder for legit clients to find the network, but is **not sufficient** alone to stop unauthorized access — strong encryption should always be used.
+
+### 4.3.3 Check Your Understanding – Answers
+1. **Wi-Fi Alliance** – responsible for testing wireless LAN devices.
+2. **The Service Set Identifier (SSID)** – used to identify a specific wireless network.
+3. **False** – if devices use a variety of 802.11 standards, you should NOT set the network to the highest standard only (older devices wouldn't connect); use mixed/legacy mode instead.
+
+---
+
+## 4.4 Set Up a Home Router
+
+### 4.4.1 First Time Setup
+- Many home wireless routers have an **automatic setup utility** for basic configuration — usually requires a PC/laptop connected via a **wired port**.
+- If no wired device is available, configure wireless client software on a laptop/tablet first.
+- **Wired connection steps:**
+  - Plug an Ethernet patch cable into the computer's network port and into a **LAN port** on the router (NOT the port labeled "Internet").
+  - The **Internet port** connects to the DSL or cable modem.
+  - Some routers have a built-in modem — verify the connection type matches your internet service:
+    - **Cable modem**: coaxial terminal, accepts a **BNC-type connector**.
+    - **DSL**: port for telephone-type cable, usually an **RJ-11 connector**.
+- After confirming connection (link lights active), the computer needs an **IP address** — usually assigned automatically via a **DHCP server** on the router.
+- If no IP address is received, manually configure IP address, subnet mask, default gateway, and DNS (check router documentation).
+
+### 4.4.2 Design Considerations
+Before configuring the router, consider:
+
+**What should my network be called?**
+- If SSID broadcasting is on, all wireless clients in range can see the SSID name.
+- Avoid including the device model/brand name in the SSID — default settings and known security weaknesses for specific models are easy to find online.
+
+**What types of devices will attach to my network?**
+- Wireless devices have radios that work within a specific frequency range/standard.
+- A device supporting only 802.11 b/g won't connect if the router is set to accept only 802.11n or 802.11ac.
+- If all devices support the same standard, the network runs at optimum speed.
+- For devices that don't support n/ac, enable **legacy mode** (aka **mixed mode**, depending on router) — can include a combination of 802.11a/b/g/n/ac for easy access by legacy devices.
+
+**How do I add new devices?**
+- Access decisions should be based on how you plan to use the network.
+- Some routers support **guest access** — a special SSID coverage area allowing open access but restricted to internet use only.
+
+### 4.4.4 Packet Tracer – Configure a Wireless Router and Client
+Objectives:
+- **Part 1:** Connect the Devices
+- **Part 2:** Configure the Wireless Router
+- **Part 3:** Configure IP Addressing and Test Connectivity
+
+---

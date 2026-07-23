@@ -1,0 +1,113 @@
+# Module 3: Wireless Networks and Mobile Device Connectivity
+
+## 3.1 Wireless Networks
+
+### 3.1.3 Other Wireless Networks
+In addition to GSM and 4G/5G, smartphones connect in other ways:
+
+| Technology | Description |
+|---|---|
+| **GPS (Global Positioning System)** | Uses satellites to transmit signals covering the globe; calculates phone location to within ~10 meters accuracy |
+| **Wi-Fi** | Transmitters/receivers in the phone connect to local networks/internet; phone must be within range of a wireless access point signal. Networks are usually private but often offer guest/public **hotspots** (areas where Wi-Fi signals are available) |
+| **Bluetooth** | Low-power, short-range wireless tech meant to replace wired connections (speakers, headphones, mics); can connect a smartwatch to a smartphone; transmits both data and voice; can form small local networks; multiple devices can connect at once |
+| **NFC (Near Field Communication)** | Wireless tech for data exchange between devices in very close proximity (usually less than a few centimeters); e.g., connecting a smartphone to a payment system; uses electromagnetic fields to transmit data |
+
+### 3.1.4 Check Your Understanding – Answers
+1. **Bluetooth** – low-power, short-range tech replacing wired connectivity for accessories like speakers/mouse.
+2. **NFC** – lets a smartphone communicate with a payment system within a few centimeters.
+
+---
+
+## 3.2 Mobile Device Connectivity
+
+### 3.2.1 Mobile Devices and Wi-Fi
+- Mobile devices let people work, learn, play, and communicate without being tied to a physical location.
+- Wireless facilities (internet cafes, college campuses) allow tasks like signing up for classes or submitting assignments without a physical network connection.
+- **Prefer connecting to Wi-Fi when possible:**
+  - Doesn't count against the cellular data plan.
+  - Wi-Fi radios use less power than cellular radios → conserves battery.
+- **Security precautions for Wi-Fi on mobile devices:**
+  - Never send login/password info as unencrypted plaintext.
+  - Use a **VPN** when sending sensitive data.
+  - Enable security on home networks.
+  - Use **WPA2 or higher** encryption.
+
+### 3.2.2 Wi-Fi Settings
+- Two popular mobile OSs: **Android** and **Apple iOS** — both let you configure Wi-Fi connections.
+- Turning on Wi-Fi makes the device search for and list available networks; tap a network and enter a password (if needed) to connect.
+- If out of range, the device tries another known Wi-Fi network; if none available, it connects via **cellular data**.
+- When Wi-Fi is on, the device auto-connects to previously used networks; for new networks, it shows a list or asks whether to connect.
+
+### 3.2.3 Configure Mobile Wi-Fi Connectivity
+- If a device doesn't prompt to connect, the **SSID broadcast** may be off, or auto-connect may be disabled — requiring **manual configuration**.
+- **SSID** = the name assigned to a wireless network.
+- **Passphrase** = the "wireless password."
+- SSIDs/passphrases must be typed **exactly** as set on the router, or the connection will fail.
+
+**Manual Wi-Fi connection – Android:**
+1. Settings > Add network
+2. Enter the network SSID
+3. Touch Security, select security type
+4. Touch Password, enter password
+5. Touch Save
+
+**Manual Wi-Fi connection – iOS:**
+1. Settings > Wi-Fi > Other
+2. Enter the network SSID
+3. Touch Security, select security type
+4. Touch Other Network
+5. Touch Password, enter password
+6. Touch Join
+
+*(Note: OS commands are updated frequently and may vary by manufacturer — check the manufacturer's website/manual for exact steps.)*
+
+### 3.2.4 Configure Cellular Data Settings
+- Cellular data plans vary widely in bandwidth limits and charges by carrier and plan.
+- Many users only use cellular data when Wi-Fi isn't available.
+- Devices are preprogrammed to prefer Wi-Fi if available (and able to get an IP address); otherwise, they use cellular data (if configured).
+- Network transitions (e.g., 4G to 3G) are usually seamless — the old radio shuts off, the new one turns on, without losing the connection.
+
+### 3.2.6 Simple Connectivity with Bluetooth
+- Cellular and Wi-Fi can be complex to configure and need extra equipment (towers, access points).
+- Cable connections aren't always practical for headsets/speakers.
+- **Bluetooth** offers simple, wireless, automatic, low-power connectivity.
+- Up to **8 Bluetooth devices** can connect at one time.
+
+**Examples of Bluetooth use:**
+- Hands-free headset (calls via earpiece + mic)
+- Keyboard or mouse (easier input)
+- Stereo control (play music via home/car stereo)
+- Car speakerphone (calls via speaker + mic)
+- Tethering (share a network connection between devices — can also be done via Wi-Fi or USB cable)
+- Mobile speaker (portable audio without a stereo system)
+
+### 3.2.7 Bluetooth Pairing
+- **Pairing** = two Bluetooth devices establishing a connection to share resources.
+- Process: Bluetooth radios turned on → one device searches → other device(s) must be in **discoverable/visible mode** to be found.
+- A discoverable device transmits: name, Bluetooth class, usable services, and technical/specification info.
+- A **PIN** (number, code, or passkey) may be required to authenticate pairing.
+- The PIN is stored by pairing services, so it isn't needed again next time (convenient for auto-pairing headsets when turned on and in range).
+
+**Pairing steps – Android:**
+1. Set device to discoverable mode
+2. Find the connection PIN (per device instructions)
+3. Settings > Wireless and networks
+4. Touch Bluetooth to turn on
+5. Touch Bluetooth tab
+6. Touch Scan for devices
+7. Touch discovered device to select
+8. Type the PIN
+9. Touch device name again to connect
+
+**Pairing steps – iOS:**
+1. Set device to discoverable mode
+2. Find the connection PIN
+3. Settings > Bluetooth
+4. Touch Bluetooth to turn on
+5. Touch discovered device to select
+6. Type the PIN
+
+### 3.2.8 Explore Your Network Settings
+- A phone can use **Wi-Fi, cellular, and Bluetooth simultaneously**, each doing a different job — e.g., listening to music (Bluetooth), browsing the internet (Wi-Fi), and receiving texts (cellular) all at once.
+
+---

@@ -1,0 +1,100 @@
+Module 1: Communication in a Connected World
+1.1 Network Types
+1.1.2 Everything is Online
+We expect our devices (phones, tablets, laptops, desktops) to always be connected to the internet.
+We use networks to interact with friends, shop, share pictures/experiences, and learn.
+The internet is usually thought of as a "place" to find or share information, not as physical connections.
+1.1.3 Who Owns "The Internet"?
+The internet is not owned by any individual or group.
+It is a worldwide collection of interconnected networks (an "internetwork"), cooperating using common standards.
+Connections happen through telephone wires, fiber-optic cables, wireless transmissions, and satellite links.
+Everything accessed online (social media, games, email, online courses) is connected to local networks that send/receive info through the internet.
+Examples of how networks connect the world:
+Intelligent networks let handheld devices receive news/emails and send texts.
+Video conferencing connects people around the globe instantly.
+Phones share voice, text, and images globally.
+Online gaming connects thousands of people seamlessly.
+1.1.4 Local Networks
+Networks range from 2 computers to hundreds of thousands of devices.
+SOHO (Small Office/Home Office) networks – let a few local users share resources (printers, documents, pictures, music).
+Businesses use large networks to advertise/sell products, order supplies, and communicate with customers.
+Network communication (email, instant messaging) is usually more efficient/cheaper than traditional mail or long-distance calls.
+The internet is called a "network of networks" because it's made up of thousands of connected local networks.
+
+Types of Networks:
+
+Type	Description
+Small Home Networks	Connect a few computers to each other and to the internet
+SOHO Networks	Allow home/remote office computers to connect to a corporate network or shared resources
+Medium to Large Networks	Used by corporations/schools; many locations, hundreds/thousands of hosts
+World Wide Networks	The internet itself — connects hundreds of millions of computers worldwide
+1.1.5 Mobile Devices
+Device	Description
+Smartphone	Combines phone, camera, GPS, media player, touch-screen computer; connects to internet almost anywhere
+Tablet	Larger screen, good for video/reading; on-screen keyboard allows emailing/browsing like a laptop
+Smartwatch	Connects to smartphone for alerts/messages; tracks heart rate, steps (like a pedometer)
+Smart Glasses	Wearable computer (e.g., Google Glass) with a tiny screen showing info like a fighter pilot's HUD; small touchpad for menu navigation
+1.1.6 Connected Home Devices
+Device	Description
+Security System	Security, lighting, climate controls monitored/configured remotely via mobile device
+Appliances	Fridges, ovens, dishwashers can be powered on/off, monitored, and send alerts (e.g., fridge temp too high)
+Smart TV	Connects to internet for content without a provider box; browse web, email, display photos/video/audio
+Gaming Console	Connects online to download games and play with friends
+1.1.7 Other Connected Devices
+Device	Description
+Smart Cars	Access maps/audio/video, send alerts for theft or accidents, connect to phones/tablets for engine info & maintenance alerts
+RFID Tags	Placed in/on objects to track them or monitor sensors
+Sensors and Actuators	Sensors collect data (temperature, humidity, wind, soil moisture); actuators act based on that data (e.g., soil moisture sensor triggers watering actuator)
+Medical Devices	Pacemakers, insulin pumps, hospital monitors give direct feedback/alerts on vital signs
+1.1.8 Check Your Understanding – Answers
+Small office home office network – allows computers in a home/remote office to connect to a corporate network.
+RFID tag – can be placed in/on a package to track it.
+1.2 Data Transmission
+1.2.2 The Bit
+Computers and networks work only with binary digits (bits) — 0 or 1.
+A bit ("binary digit") is the smallest piece of data; humans interpret words/pictures, computers interpret bit patterns.
+A bit is stored/transmitted as one of two discrete states (e.g., two voltage levels, two light intensities, magnetization directions, on/off).
+Input devices (mouse, keyboard, mic) translate human interaction → binary for the CPU.
+Output devices (printer, speakers, monitor) translate binary → human-recognizable form.
+ASCII (American Standard Code for Information Interchange): each character = 8 bits.
+A = 01000001
+9 = 00111001
+= 00100011
+A group of 8 bits = 1 byte.
+Codes can represent almost any digital info: data, graphics, photos, voice, video, music.
+1.2.3 Common Methods of Data Transmission
+After data becomes bits, it's converted into signals sent across network media (copper wire, fiber-optic cable, electromagnetic waves/air).
+A signal = electrical/optical pattern transmitted from one device to another, representing bits as pulses of electricity, pulses of light, or radio waves.
+Signals may convert multiple times as media changes along the path.
+
+Three common transmission methods:
+
+Method	Description
+Electrical signals	Data represented as electrical pulses on copper wire
+Optical signals	Electrical signals converted into light pulses
+Wireless signals	Infrared, microwave, or radio waves through the air
+Homes/small businesses: mostly copper cables or Wi-Fi.
+Larger networks: fiber-optic cables for reliable, long-distance signal transmission.
+1.2.4 Check Your Understanding – Answers
+Bit – basic unit of information representing one of two discrete states.
+Inferred data – data (like location/preferences) that a company learns about you based on your activity (e.g., credit card purchases).
+Optical signals – use frequencies or pulses of light.
+1.3 Bandwidth and Throughput
+1.3.1 Bandwidth
+Bandwidth is the capacity of a medium (network connection) to carry data — essentially, how much data can be transmitted over a given period of time.
+Usually measured in bits per second (bps), and commonly seen as kbps, Mbps, or Gbps.
+Bandwidth is determined by both the physical properties of the media (e.g., copper, fiber, wireless) and the technologies used to transmit signals.
+Bandwidth is a theoretical/rated maximum — actual data transfer speed (throughput) is often lower.
+1.3.2 Throughput
+Throughput = the actual measure of the transfer of bits across media over a given time period.
+Throughput usually does not match the specified bandwidth due to several factors:
+Amount of data being sent/received.
+Types of data being transmitted.
+Latency – time (including delays) for data to travel from one point to another, caused by number of network devices in the path.
+Throughput measurements don't account for whether the bits are "useful" — includes network control messages (traffic regulation, error correction), not just user data.
+In an internetwork with multiple segments, throughput cannot exceed the slowest link in the path — even one low-bandwidth segment slows the whole path.
+Online speed tests can measure a connection's throughput.
+1.3.4 Check Your Understanding – Answers
+Bandwidth – capacity of the medium to carry data.
+Throughput – measurement that includes latency encountered during transmission.
+Bits per second (bps) – standard unit that reflects throughput/latency-inclusive measurement.
