@@ -1,0 +1,230 @@
+# P1-C06: Subnetting with Practical Examples
+
+> **Part 1 — Network Fundamentals**
+> Source: My Ebook, Author Patrick Luan de Mattos
+> Category: `my-ebook` | Level: Intermediate
+
+---
+
+## 🎯 Learning Objectives
+
+- [ ] Understand IP addressing limits that led to subnetting
+- [ ] Explain subnetting's purpose for management and security
+- [ ] Calculate subnet masks, network/broadcast addresses, usable hosts via CIDR
+- [ ] Perform subnetting for various host/subnet requirements
+- [ ] Design a practical, secure segmentation plan
+- [ ] Spot and troubleshoot common subnetting errors
+
+---
+
+## 🧱 Why Subnetting Exists — The Classful Problem
+
+Old classful system gave fixed blocks + fixed masks:
+
+| Class | Network Bits | Default Mask | CIDR | Hosts/Network |
+|---|---|---|---|---|
+| A | 8 | 255.0.0.0 | /8 | ~16.7M |
+| B | 16 | 255.255.0.0 | /16 | ~65,000 |
+| C | 24 | 255.255.255.0 | /24 | 254 |
+
+**Problems this caused:**
+- **Wasted addresses** — a university needing a few thousand IPs got a whole Class B (65K+)
+- **Huge broadcast domains** — one broadcast floods the entire network, killing performance
+- **No real hierarchy** — hard to logically segment a large org's network
+
+**Subnetting = solution.** Borrow bits from the host portion to carve a big network into smaller, manageable subnets — like dividing a city into neighborhoods, each with its own local addressing.
+
+---
+
+## 🔑 Key Concepts
+
+| Term | Meaning |
+|---|---|
+| **Network Address** | First address in a subnet (all host bits = 0) — identifies the subnet, not assignable |
+| **Broadcast Address** | Last address in a subnet (all host bits = 1) — sends to all hosts in subnet, not assignable |
+| **Usable Host Addresses** | Everything between network & broadcast — assignable to devices |
+| **Subnet Mask** | 32-bit number; ANDed with IP to split network vs host portion |
+| **CIDR** | `/n` notation — replaced classful system; `n` = number of network bits |
+
+---
+
+## 🧮 The Binary Mechanics
+
+### AND operation (finding the network address)
+```
+   11000000.10101000.00000001.00001010   (192.168.1.10)
+AND 11111111.11111111.11111111.00000000   (255.255.255.0 = /24)
+------------------------------------------
+   11000000.10101000.00000001.00000000   (Network: 192.168.1.0)
+```
+
+### Borrowing bits (extending the mask)
+
+| Bits Borrowed | New Mask (binary, last octet) | Decimal | CIDR | Subnets (2ⁿ) |
+|---|---|---|---|---|
+| 1 | 10000000 | 128 | /25 | 2 |
+| 2 | 11000000 | 192 | /26 | 4 |
+| 3 | 11100000 | 224 | /27 | 8 |
+
+### The Two Core Formulas
+
+- **Number of subnets** = 2ⁿ, where *n* = bits borrowed
+- **Usable hosts per subnet** = 2^(H−n) − 2, where *H* = original host bits (−2 for network + broadcast addresses)
+
+**From a /24 (8 host bits):**
+
+| Borrowed | Host Bits Left | CIDR | Usable Hosts |
+|---|---|---|---|
+| 0 | 8 | /24 | 254 |
+| 1 | 7 | /25 | 126 |
+| 2 | 6 | /26 | 62 |
+| 3 | 5 | /27 | 30 |
+
+---
+
+## ✨ The "Magic Number" (Block Size) Shortcut
+
+**Magic number = 256 − (mask value of the last non-255 octet).** Subnets increment by this number.
+
+| Mask (last octet) | CIDR | Magic Number |
+|---|---|---|
+| 128 | /25 | 128 |
+| 192 | /26 | 64 |
+| 224 | /27 | 32 |
+| 240 | /28 | 16 |
+
+---
+
+## 📐 Worked Example 1 — /24 → /27 (need ≥25 hosts/subnet)
+
+1. **Host requirement:** need ≥25 → 2⁵−2 = 30 ✅ → need **5 host bits**
+2. **Borrow:** /24 has 8 host bits → borrow 8−5 = **3 bits** → new CIDR = **/27**, mask = `255.255.255.224`
+3. **Subnets created:** 2³ = 8
+4. **Magic number:** 256−224 = 32
+
+| Subnet # | Network | Broadcast | Usable Hosts |
+|---|---|---|---|
+| 0 | 192.168.1.0 | 192.168.1.31 | .1–.30 |
+| 1 | 192.168.1.32 | 192.168.1.63 | .33–.62 |
+| 2 | 192.168.1.64 | 192.168.1.95 | .65–.94 |
+| 3 | 192.168.1.96 | 192.168.1.127 | .97–.126 |
+| 4 | 192.168.1.128 | 192.168.1.159 | .129–.158 |
+| 5 | 192.168.1.160 | 192.168.1.191 | .161–.190 |
+| 6 | 192.168.1.192 | 192.168.1.223 | .193–.222 |
+| 7 | 192.168.1.224 | 192.168.1.255 | .225–.254 |
+
+---
+
+## 📐 Worked Example 2 — Subnetting a /16 (beyond the last octet)
+
+**Goal:** `172.16.0.0/16` → 10 subnets, ≥100 hosts each
+
+1. **Host requirement:** need ≥100 → 2⁷−2 = 126 ✅ → need **7 host bits**
+2. **Subnet requirement:** need 10 subnets → 2⁴ = 16 ✅ → need to borrow **4 bits**
+3. **Check:** 16 original host bits − 4 borrowed = 12 host bits left → 2¹²−2 = 4094 hosts (plenty)
+4. **New CIDR:** 16 + 4 = **/20**, mask = `255.255.240.0` (borrowing happens in the 3rd octet: `11110000` = 240)
+5. **Subnets:** 2⁴ = 16
+6. **Magic number:** 256−240 = 16 (increments in the **3rd octet**)
+
+| Subnet # | Network | Broadcast | Usable Hosts |
+|---|---|---|---|
+| 0 | 172.16.0.0 | 172.16.15.255 | 172.16.0.1–172.16.15.254 |
+| 1 | 172.16.16.0 | 172.16.31.255 | 172.16.16.1–172.16.31.254 |
+| ... | ... | ... | ... |
+| 9 | 172.16.144.0 | 172.16.159.255 | 172.16.144.1–172.16.159.254 |
+| 15 | 172.16.240.0 | 172.16.255.255 | 172.16.240.1–172.16.255.254 |
+
+**Key takeaway:** subnetting isn't limited to the last octet — for /16 or /8 blocks, the "interesting octet" (where the mask changes) shifts earlier.
+
+---
+
+## 🏢 Practical Walkthrough — Small Office Segmentation Plan
+
+**Given:** `192.168.5.0/24`. Need to segment:
+
+| Segment | Hosts Needed |
+|---|---|
+| Workstations | ~30 |
+| Servers | ~5 |
+| Printers/IoT | ~10 |
+| Guest Wi-Fi | ~20 |
+
+### Step 1 — Host bits needed per segment
+| Segment | Formula | Host Bits |
+|---|---|---|
+| Workstations (30) | 2⁵−2=30 | 5 |
+| Servers (5) | 2³−2=6 | 3 |
+| Printers/IoT (10) | 2⁴−2=14 | 4 |
+| Guest Wi-Fi (20) | 2⁵−2=30 | 5 |
+
+→ **Most demanding = 5 host bits** (drives the whole design)
+
+### Step 2 — Pick the mask
+- /24 has 8 host bits; need 5 → borrow 8−5 = **3 bits** → **/27**, mask `255.255.255.224`
+- Creates 2³ = 8 subnets, 30 usable hosts each — covers every segment's need
+
+### Step 3 — Assign subnets (magic number = 32)
+
+| Purpose | CIDR | Network | Broadcast | Usable Hosts |
+|---|---|---|---|---|
+| Servers | 192.168.5.0/27 | .0 | .31 | .1–.30 |
+| Workstations | 192.168.5.32/27 | .32 | .63 | .33–.62 |
+| Printers/IoT | 192.168.5.64/27 | .64 | .95 | .65–.94 |
+| Guest Wi-Fi | 192.168.5.96/27 | .96 | .127 | .97–.126 |
+
+**Remaining subnets 4–7** (`.128` through `.255`) → reserved for future expansion.
+
+### Why this design is good
+- **Reduced broadcast domains** → better performance
+- **Enhanced security** → firewalls between subnets; e.g. isolate guest Wi-Fi from internal resources
+- **Better organization** → devices grouped logically by function
+
+---
+
+## ⚠️ Common Mistakes & Troubleshooting
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| Wrong subnet mask math | Devices in same intended subnet can't ping each other | Recheck binary math; verify against an online subnet calculator |
+| Assigning network/broadcast address to a host | Device can't communicate or drops intermittently | Confirm host IP isn't all-0s or all-1s in host portion |
+| Overlapping subnets | Devices behave as if on wrong subnet; weird routing | Carefully list every subnet range before assigning; check no overlap |
+| Miscalculating host count | Run out of IPs early, or way over-allocated | Recheck 2^H−2 formula, including the −2 |
+| Incorrect CIDR notation | Invalid IP config reported | Confirm CIDR prefix matches actual mask (e.g. /24 = 255.255.255.0) |
+| Ignoring future growth | Forced to re-subnet later, causing disruption | Reserve extra subnets/host space up front |
+
+### Troubleshooting steps
+1. Check IP config on the host: `ipconfig` (Windows) or `ip a` / `ifconfig` (Linux/macOS) — verify IP, mask, gateway
+2. Ping the default gateway — if it fails, suspect local IP config or physical connectivity first
+
+---
+
+## 📝 Chapter Summary
+
+- Classful addressing (A/B/C) wasted addresses and created huge broadcast domains
+- Subnetting borrows host bits to create smaller, manageable subnets
+- CIDR replaced fixed classes with flexible `/n` prefix notation
+- Two formulas drive all subnetting: **2ⁿ subnets** and **2^(H−n) − 2 usable hosts**
+- The "magic number" (256 − mask octet value) gives quick subnet range increments
+- Subnetting isn't limited to the last octet — larger blocks (/16, /8) subnet in earlier octets
+- Good segmentation = smaller broadcast domains + easier firewalling + cleaner admin
+
+---
+
+## ❓ Exercises (self-test)
+
+1. Why did classful addressing (A/B/C) waste so many IP addresses?
+2. You need at least 50 usable hosts per subnet from a /24 — what CIDR and mask do you need?
+3. Calculate: how many subnets and hosts/subnet does `/28` give you from a /24?
+4. Subnet `10.0.0.0/8` into at least 20 networks of 500+ hosts each — what CIDR do you land on?
+5. What's the network address and broadcast address for `192.168.5.64/27`?
+6. Why must you never assign a network or broadcast address to a device?
+7. Design a segmentation plan for 4 departments needing 60, 15, 8, and 40 hosts respectively, from a `/23` block.
+8. What's the first troubleshooting step when a host can't reach its default gateway?
+
+---
+
+## ➡️ Next Up
+**P1-C07: TCP and UDP Deep Dive** — Transport Layer protocols in depth: reliability, ports, three-way handshake, and when to use TCP vs UDP.
+
+---
+*Tags: `#networking` `#subnetting` `#cidr` `#part1` `#foundations`*

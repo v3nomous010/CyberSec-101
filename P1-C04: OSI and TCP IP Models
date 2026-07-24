@@ -1,0 +1,180 @@
+# P1-C04: OSI and TCP/IP Models
+
+> **Part 1 — Networking Fundamentals**
+> Source: My Ebook, Author Patrick Luan de Mattos
+> Category: `my-ebook` | Level: Beginner
+
+---
+
+## 🎯 Learning Objectives
+
+- [ ] Explain why network models exist and why they matter for standardizing communication
+- [ ] Describe all 7 OSI layers and their core responsibilities
+- [ ] Describe the 4 TCP/IP layers and how they map to OSI
+- [ ] Map common protocols to their correct layer(s)
+- [ ] Understand encapsulation vs decapsulation
+- [ ] Connect model knowledge to real defensive/security practice
+
+---
+
+## 🧩 Why Network Models Exist
+
+Without a shared standard, two devices communicating would need to agree on everything from scratch — addressing, language, packaging, transport, interpretation. Network models solve this by **breaking communication into layers**, where each layer:
+
+- Has one specific job
+- Doesn't need to know how other layers work
+- Passes data to the layer above/below through a defined interface
+
+---
+
+## 🧱 The OSI Model (7 Layers) — Theoretical Blueprint
+
+Developed by ISO. Not directly implemented as-is in modern networks, but essential for **conceptual understanding** and dissecting traffic for security work.
+
+| Layer | Name | Responsibility | Examples/Protocols | Analogy |
+|---|---|---|---|---|
+| 7 | **Application** | Services directly for user apps | HTTP/HTTPS, SMTP, POP3, IMAP, FTP, Telnet, SSH | The message content/language |
+| 6 | **Presentation** | Data formatting, encryption, compression | SSL/TLS, JPEG, MPEG | Translating/encrypting the message |
+| 5 | **Session** | Establish, manage, terminate sessions | NetBIOS, RPC | Managing a phone call |
+| 4 | **Transport** | Host-to-host delivery, segmentation, flow/error control | **TCP** (reliable), **UDP** (best-effort) | Registered mail (TCP) vs postcard (UDP) |
+| 3 | **Network** | Logical addressing & routing | IP, ICMP, ARP | Road network + traffic police |
+| 2 | **Data Link** | Physical (MAC) addressing, framing, error detection | Ethernet, Wi-Fi (802.11), PPP | Specific road + license plates |
+| 1 | **Physical** | Raw bit transmission over medium | Cat5e/6 cables, fiber, radio, RJ45 | The physical road/tires |
+
+**Mnemonic (top→bottom):** *All People Seem To Need Data Processing*
+
+---
+
+## 🌐 The TCP/IP Model (4 Layers) — The Practical Workhorse
+
+What actually runs the internet. Consolidates OSI layers into fewer, practical groupings.
+
+| TCP/IP Layer | Maps to OSI Layers | Responsibility | Protocols |
+|---|---|---|---|
+| **Application** | 5, 6, 7 (Session, Presentation, Application) | User-facing services + session mgmt | HTTP, FTP, SMTP, DNS, Telnet, SSH |
+| **Transport** | 4 (Transport) | Host-to-host transfer | TCP, UDP |
+| **Internet** | 3 (Network) | Logical addressing, routing | IP, ICMP, ARP |
+| **Network Access** | 1, 2 (Physical, Data Link) | Physical transmission, hardware addressing | Ethernet, Wi-Fi, PPP |
+
+---
+
+## 📦 Encapsulation vs Decapsulation
+
+**Encapsulation** = data moving *down* the stack (sender), gaining a header (and sometimes trailer) at each layer.
+**Decapsulation** = data moving *up* the stack (receiver), stripping headers as it goes.
+
+### Encapsulation steps (sender)
+1. **App (L7):** app generates data (e.g. HTTP request)
+2. **Presentation (L6):** format/encrypt/compress if needed
+3. **Session (L5):** session established, control info added
+4. **Transport (L4):** data → **segments** (TCP) or **datagrams** (UDP); header adds ports + sequencing
+5. **Network (L3):** segment → **packet**; header adds source/destination IP
+6. **Data Link (L2):** packet → **frame**; header adds source/destination MAC + trailer (FCS) for error checking
+7. **Physical (L1):** frame → raw bits transmitted as signals
+
+### Decapsulation steps (receiver) — reverse order
+1. **Physical:** raw bits → frame
+2. **Data Link:** check MAC address + error check → extract packet
+3. **Network:** check IP address, process routing → extract segment/datagram
+4. **Transport:** check port number, reassemble (TCP) or pass through (UDP) → extract data
+5. **Session:** manage session
+6. **Presentation:** decrypt/decompress
+7. **Application:** deliver data to the app
+
+**Key insight:** each layer only cares about its own job. IP doesn't care if it's Ethernet or Wi-Fi underneath; HTTP doesn't care how bits are physically sent.
+
+### Encapsulation Diagram (HTTP Request)
+```
+Application Data (HTTP Request)
+        │
+        ▼  + Transport Header (TCP port 80)          → Segment
+        ▼  + Network Header (IP A → B)                → Packet
+        ▼  + Data Link Header (MAC X → Y) + FCS trailer → Frame
+        ▼  → Raw bits over Physical medium
+```
+
+---
+
+## 🛠️ Practical Walkthroughs
+
+### 1. `ping` — Testing Network Layer (L3) Connectivity
+Uses **ICMP** (Network Layer protocol).
+
+```bash
+ping google.com
+```
+- Resolves hostname → IP (Network Layer job)
+- `time=25ms` → Round Trip Time (latency)
+- `TTL=118` → Time To Live, decrements per hop, prevents infinite loops
+
+**Takeaway:** `ping` proves Network Layer addressing + routing works, via ICMP.
+
+### 2. `netstat` — Viewing Transport Layer (L4) Connections
+
+```bash
+netstat -ano
+```
+- `-a` = all connections/listening ports
+- `-n` = numeric addresses/ports
+- `-o` = PID (Windows)
+
+| Column | Meaning |
+|---|---|
+| Proto | TCP or UDP |
+| Local Address | your IP:port |
+| Foreign Address | remote IP:port |
+| State | e.g. LISTENING, ESTABLISHED (TCP-specific) |
+| PID | process using the connection |
+
+**Takeaway:** `netstat` shows which apps are using which ports/protocols — pure Transport Layer visibility.
+
+---
+
+## ⚠️ Common Mistakes
+
+- **Forcing a strict 1:1 OSI ↔ TCP/IP mapping** — TCP/IP consolidates layers; it's not perfectly symmetric.
+- **Troubleshooting only at the Application layer** — always start low (cable/physical → IP → DNS) and work up.
+- **Assuming port numbers are global** — ports are per-host, used to distinguish services on that host only.
+- **Forcing every protocol into one OSI layer** — some protocols (e.g. TLS) span layers depending on context.
+
+---
+
+## 🛡️ Defensive Engineering Notes
+
+| Layer Concept | Defensive Action |
+|---|---|
+| Firewalls inspect IP (L3) + ports (L4); WAFs inspect app traffic (L7) | Configure firewalls to block all unneeded ports/protocols; allow only essentials (e.g. 80/443 for a web server) |
+| Insecure protocols (Telnet, FTP, HTTP) | Replace with secure equivalents: SSH, SFTP/FTPS, HTTPS |
+| Network segmentation via IP subnetting (L3) | Use VLANs (L2) + subnetting to isolate sensitive systems |
+| IDS/IPS inspect multiple layers | Deploy IDS/IPS that analyze Network, Transport, and Application layer traffic |
+
+---
+
+## 📝 Chapter Summary
+
+- OSI (7 layers) = theoretical/educational framework for dissecting network functions
+- TCP/IP (4 layers) = practical model that actually runs the internet
+- Encapsulation/decapsulation = how data is packaged going down the stack and unpacked coming up
+- `ping` and `netstat` = simple tools to observe Network Layer and Transport Layer behavior respectively
+- Layer knowledge directly informs firewall rules, protocol security choices, segmentation, and IDS/IPS design
+
+---
+
+## ❓ Exercises (self-test — answer before checking notes above)
+
+1. What's the main purpose of a network model, and why does it matter for cybersecurity?
+2. List the 7 OSI layers, top to bottom.
+3. List the 4 TCP/IP layers.
+4. Which OSI layer maps most closely to the TCP/IP Internet layer? What's its job?
+5. Which OSI layer handles: HTTP? TCP? Ethernet?
+6. Explain data encapsulation — what specifically happens at the Transport layer?
+7. A user can't load a website. Which layers do you check, starting from the lowest, and what do you check at each?
+8. Designing a firewall for a web server — which OSI layers matter most, and why?
+
+---
+
+## ➡️ Next Up
+**P1-C05: IP Addressing and Subnetting** — deep dive into the Network Layer: IPv4 vs IPv6, and subnetting larger networks into manageable pieces.
+
+---
+*Tags: `#networking` `#osi-model` `#tcpip` `#part1` `#foundations`*

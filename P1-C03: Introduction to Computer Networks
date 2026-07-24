@@ -1,0 +1,162 @@
+# P1-C03: Introduction to Computer Networks
+
+## What is a Network?
+- A system that lets two or more computing devices exchange data and share resources.
+- Origin: driven by the need to **share expensive computing resources** (e.g., one central mainframe accessed by multiple terminals) — evolved into sharing files, printers, and remote information access.
+
+---
+
+## Core Components
+
+| Component | Description |
+|---|---|
+| **Nodes** | Individual connected devices (computers, servers, smartphones, printers, routers, smart appliances). Each has a unique identifier. |
+| **Links** | Communication pathways between nodes — physical (Ethernet, fiber) or wireless (Wi-Fi, cellular). Link speed/reliability/range affects performance. |
+| **Packets** | Data broken into smaller chunks for transmission (like pages of a document, each addressed and numbered). |
+
+### Packet Structure
+- **Header** – source/destination addresses, sequence number, error-checking info.
+- **Payload** – the actual data being sent.
+- **Trailer (optional)** – additional error-checking info.
+
+**Advantages of packets:**
+- **Efficiency** – smaller packets interleave better with other data streams.
+- **Robustness** – only lost/corrupted packets need retransmission, not the whole message.
+- **Flexibility** – different data types can be sent simultaneously.
+
+---
+
+## Network Topologies (how nodes are arranged)
+
+| Topology | Description | Pros | Cons |
+|---|---|---|---|
+| **Bus** | All nodes connect to one central cable (backbone); data broadcast to all, only intended recipient processes it | Simple, inexpensive | Whole network fails if backbone fails; hard to troubleshoot; degrades with more nodes |
+| **Star** | All nodes connect to a central hub/switch | One failed link only affects that node; easy to add/remove nodes; easy to troubleshoot | Entire network down if hub/switch fails; more cabling needed |
+| **Ring** | Nodes connected in a closed loop; data travels one direction | Handles high traffic well | One failed node/link breaks the whole ring; disruptive to add/remove nodes |
+| **Mesh** | Every node connects to every other node | Highly reliable — alternate paths if one fails | Expensive and complex (many connections) |
+| **Hybrid** | Combination of two+ topologies (most modern networks) | Balances cost, performance, reliability | — |
+
+---
+
+## Reliability
+- The probability that transmitted data arrives correctly, without errors.
+- **Mechanisms:**
+  - **Error detection/correction** – checksums/parity bits detect corruption; may trigger retransmission.
+  - **Redundancy** – multiple paths (mesh) or backup hardware (routers/switches) ensure delivery even if one path fails.
+  - **ACK/NACK** – Acknowledgement sent when a packet arrives successfully; Negative Acknowledgement or timeout triggers retransmission.
+
+---
+
+## Latency
+- The delay/time for a packet to travel from source to destination.
+- **Contributing factors:**
+  - **Propagation Delay** – time for the signal to physically travel across the medium (limited by speed of light).
+  - **Transmission Delay** – time to push all packet bits onto the link (depends on packet size & bandwidth).
+  - **Processing Delay** – time for devices (routers) to examine headers and determine next hop.
+  - **Queuing Delay** – time a packet waits in device queues before processing (varies with congestion).
+- **Trade-off example:** Higher bandwidth reduces transmission delay, but heavy router congestion can still cause high latency via queuing delay.
+
+---
+
+## Layered Model of Networking (Conceptual)
+Networks are structured in layers — each layer serves the layer above and relies on the layer below (OSI model / TCP-IP model).
+
+| Layer | Function |
+|---|---|
+| **Physical** | Raw transmission of bits over a medium (cables, radio); electrical/mechanical/procedural interfaces |
+| **Data Link** | Transfers data between adjacent nodes on a single link; error detection/correction; physical (MAC) addressing |
+| **Network** | Logical addressing (IP addresses); routes packets across multiple networks |
+| **Transport** | End-to-end communication between applications; segmentation, reassembly, flow/error control (TCP, UDP operate here) |
+| **Application** | Services directly to end-user apps (web browsing, email) |
+
+---
+
+## Protocols (Rules for Communication)
+
+| Protocol | Layer | Description |
+|---|---|---|
+| **Ethernet** | Physical/Data Link | Defines data transmission over physical links in LANs; shared medium access |
+| **IP (Internet Protocol)** | Network | Defines packet addressing (IP addresses) and routing |
+| **TCP (Transmission Control Protocol)** | Transport | Connection-oriented; reliable, ordered, error-checked delivery (used for HTTP, FTP) |
+| **UDP (User Datagram Protocol)** | Transport | Connectionless; faster but less reliable (used for streaming, gaming) |
+| **HTTP (Hypertext Transfer Protocol)** | Application | Governs how browsers/servers exchange web data |
+
+---
+
+## Network Types (by geographic scope)
+
+| Type | Description | Example |
+|---|---|---|
+| **LAN** (Local Area Network) | Small area (office, home, campus); single organization | Home Wi-Fi network |
+| **WAN** (Wide Area Network) | Large area — cities, countries, continents; internet is the largest WAN | Multinational corporate network |
+| **MAN** (Metropolitan Area Network) | Covers a city/large campus; bigger than LAN, smaller than WAN | — |
+| **PAN** (Personal Area Network) | Interconnects devices within a person's immediate workspace (a few meters) | Bluetooth devices connecting to your phone |
+
+---
+
+## Diagrams (Conceptual)
+
+**Star Topology:** central switch connects to multiple nodes (spokes of a wheel).
+
+**Packet structure:** `Header (source/dest IP, port, seq#) | Payload (actual data)`
+
+**Example — sending "Hello World":**
+- Broken into 3 packets, each with a sequence number and destination.
+- Packets may arrive out of order (e.g., 2, 1, 3) but are reassembled correctly using sequence numbers.
+
+---
+
+## Practical Walkthroughs
+
+### 1. Checking Your Local Network Identity
+- **Windows:** Command Prompt → `ipconfig`
+- **macOS/Linux:** Terminal → `ifconfig`
+- Look for: **IPv4 Address** (your device's local IP), **Default Gateway** (router's IP), **Subnet Mask**.
+
+### 2. Tracing the Path to a Website
+- **Windows:** `tracert google.com`
+- **macOS/Linux:** `traceroute google.com`
+- Shows each router "hop" along the path and round-trip latency (ms) for each.
+- Latency generally increases with each hop; number of hops varies.
+
+---
+
+## Common Mistakes & Troubleshooting
+
+| Issue | Fix |
+|---|---|
+| **IP Address Conflict** (two devices, same IP) | Use DHCP for automatic IPs; verify static IPs are unique |
+| **Incorrect Subnet Mask** | Verify consistency across devices (commonly `255.255.255.0` at home) |
+| **"No Internet Access"** | Ping default gateway first (local issue if unreachable); then check router's internet connection & DNS |
+| **Slow Performance** | Use `ping` to test latency; check router status; consider hardware/plan upgrade |
+
+---
+
+## Defensive Engineering Considerations (Security Relevance)
+- **Network Segmentation** – dividing a network into isolated subnets limits the "blast radius" of a security incident (like ship bulkheads).
+- **Firewalls** – gatekeepers between segments; enforce traffic rules; require understanding of protocols/packets to configure effectively.
+- **IDS/IPS** (Intrusion Detection/Prevention Systems) – monitor traffic for malicious patterns via deep packet inspection.
+- **Access Control** – MAC address filtering, IP whitelisting/blacklisting to control device connections.
+- **Protocol Security** – understanding vulnerabilities (e.g., unencrypted HTTP) drives adoption of secure alternatives (e.g., HTTPS).
+
+---
+
+## Chapter Summary
+Networks let devices share resources/data via **nodes** connected by **links**, transmitting data as **packets**. **Topology** determines how nodes connect and affects reliability/performance. **Reliability** ensures correct data arrival; **latency** measures delay. **Layered models** and **protocols** (IP, TCP, HTTP) structure and enable communication. **Network types** (LAN, WAN, MAN, PAN) are defined by geographic scope.
+
+---
+
+## Exercises (For Self-Review)
+1. Why is breaking data into packets more efficient/robust than sending it as one block?
+2. Describe a scenario where high latency is worse than low bandwidth.
+3. Compare star vs. bus topology for a small office network.
+4. If a packet is lost, which transport protocol (TCP or UDP) auto-retransmits it, and why?
+5. Practical: Run `ping google.com` — what does it show about latency/packet loss?
+6. Practical: What is your default gateway's IP, and what does it represent?
+7. If two computers are connected directly via Ethernet cable (no router/switch), what topology is this, and what's the main communication challenge?
+8. Defensive thinking: How does a star topology limit malware spread compared to a bus topology if one computer is compromised?
+
+---
+
+## Next Chapter Preview
+**P1-C04: Network Security Fundamentals** — will cover firewalls, encryption, and common network attack vectors at a high level.

@@ -1,0 +1,296 @@
+# P1-C08: HTTP, HTTPS, DNS, DHCP, and ARP — The Language of the Internet
+
+> **Part 1 — Foundations of Network and Information Security**
+> Source: My Ebook, Author Patrick Luan de Mattos
+> Category: `my-ebook` | Level: Intermediate
+
+---
+
+## 🎯 Learning Objectives
+
+- [ ] Explain HTTP, HTTPS, DNS, DHCP, and ARP's roles in network communication
+- [ ] Describe HTTP's request-response cycle and its evolution to HTTPS
+- [ ] Understand DNS resolution, record types, and query mechanisms
+- [ ] Detail the DHCP lease (DORA) process
+- [ ] Analyze how ARP maps IP → MAC on a LAN
+- [ ] Identify security implications/vulnerabilities per protocol
+- [ ] Use basic diagnostic tools to observe each protocol
+- [ ] Formulate defenses against common attacks on these services
+
+---
+
+## 🌐 1. HTTP — The Web's Foundation
+
+Application-layer, client-server request-response model.
+
+### HTTP Methods
+
+| Method | Purpose |
+|---|---|
+| **GET** | Request data (safe, idempotent) |
+| **POST** | Submit data to be processed (not idempotent) |
+| **PUT** | Upload/replace a resource |
+| **DELETE** | Delete a resource |
+| **HEAD** | Get headers only, no body |
+| **OPTIONS** | Describe communication options |
+| **PATCH** | Partial modification of a resource |
+
+### HTTP Status Codes
+
+| Range | Meaning | Examples |
+|---|---|---|
+| 1xx | Informational | — |
+| 2xx | Success | 200 OK, 201 Created, 204 No Content |
+| 3xx | Redirection | 301 Moved Permanently, 302 Found |
+| 4xx | Client Error | 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found |
+| 5xx | Server Error | 500 Internal Server Error, 503 Service Unavailable |
+
+### Headers
+- **Request:** `User-Agent`, `Accept`, `Cookie`, `Authorization`
+- **Response:** `Content-Type`, `Set-Cookie`, `Cache-Control`, `Server`
+
+### HTTP Version Evolution
+
+| Version | Key Feature |
+|---|---|
+| HTTP/1.0 | Basic — new connection per request |
+| HTTP/1.1 | Persistent connections (keep-alive), pipelining, host headers |
+| HTTP/2 | Multiplexing, header compression, server push, binary framing |
+| HTTP/3 | Runs over **QUIC** (UDP-based) — reduces head-of-line blocking |
+
+---
+
+## 🔒 2. HTTPS — Securing the Web
+
+Not a separate protocol — **HTTP layered over TLS/SSL**. Provides:
+- **Encryption** — data unreadable to eavesdroppers
+- **Authentication** — verifies server identity via digital certificates
+- **Integrity** — detects tampering in transit
+
+### TLS Handshake (before any HTTP data flows)
+
+1. **Client Hello** — supported TLS versions, cipher suites, random number
+2. **Server Hello** — chosen version/cipher, server certificate (public key), another random number
+3. **Client Authentication** — client verifies cert against trusted CAs; generates pre-master secret, encrypts with server's public key, sends it
+4. **Key Exchange** — both sides derive symmetric session keys from pre-master secret + randoms
+5. **Finished** — encrypted confirmation messages both ways
+6. **Application Data** — actual HTTP traffic now encrypted with session keys
+
+### Certificates & CAs
+- **X.509 certificates** bind a public key to an identity (domain name)
+- **CAs** (Certificate Authorities) are trusted third parties issuing/managing certs
+- Browsers maintain a trusted CA list; validate cert issuer + domain match on every HTTPS visit
+
+---
+
+## 📖 3. DNS — The Internet's Phonebook
+
+Translates domain names → IP addresses.
+
+### Resolution Process
+
+```
+1. Browser/OS cache check
+2. → Recursive Resolver (ISP or public: 8.8.8.8, 1.1.1.1)
+3. → Root Server ("where's .com?")
+4. → TLD Server ("where's example.com?")
+5. → Authoritative Name Server ("what's the IP for www.example.com?")
+6. → Response cached (per TTL) and returned to browser
+```
+
+### DNS Record Types
+
+| Record | Purpose |
+|---|---|
+| **A** | Hostname → IPv4 |
+| **AAAA** | Hostname → IPv6 |
+| **CNAME** | Alias of one name to another |
+| **MX** | Mail servers for the domain |
+| **NS** | Authoritative name servers |
+| **TXT** | Arbitrary text — SPF/DKIM/DMARC verification, etc. |
+| **SOA** | Zone authority info — primary NS, admin email, serial, timers |
+
+### DNSSEC
+DNS wasn't designed with security in mind (vulnerable to spoofing/cache poisoning). **DNSSEC** adds digital signatures so resolvers can cryptographically verify responses haven't been altered.
+
+---
+
+## 🏷️ 4. DHCP — Automated IP Assignment
+
+### The DORA Process
+
+| Step | Message | Direction | Port |
+|---|---|---|---|
+| 1 | **D**iscover | Client broadcasts (255.255.255.255) | UDP 67 |
+| 2 | **O**ffer | Server offers IP/mask/gateway/DNS/lease time to client MAC | UDP 68 |
+| 3 | **R**equest | Client broadcasts acceptance of chosen offer | UDP 67 |
+| 4 | **A**cknowledge | Server confirms lease (DHCPACK), marks IP in-use | UDP 68 |
+
+### Leases
+- IPs are **leased**, not permanent
+- Client attempts renewal ~halfway through lease
+- If renewal fails, retries closer to expiry
+- Unrenewed lease → IP returns to pool, reassignable
+
+---
+
+## 🔗 5. ARP — Bridging Layer 2 and Layer 3
+
+Maps **IP address (L3) → MAC address (L2)** within a LAN.
+
+### The ARP Process
+1. **ARP Request** (broadcast): "Who has IP X.X.X.X? Tell Y.Y.Y.Y" (includes sender's IP+MAC, target IP)
+2. **ARP Reply** (unicast): target device replies with its MAC address
+3. **ARP Cache**: sender stores the IP→MAC mapping to avoid repeat requests
+
+### Gratuitous ARP
+Unprompted ARP message, used to:
+- Announce an IP address change
+- Detect IP conflicts (reply received to your own IP's ARP request = someone else is using it)
+
+---
+
+## 🏗️ How They All Interact — Full Scenario
+
+**You type `www.example.com` into your browser:**
+
+1. **DNS Resolution** — DNS query (UDP 53) via configured resolver → recursive lookup (root → TLD → authoritative) → returns IP `93.184.216.34`
+2. **ARP for Gateway** — device checks ARP cache for default gateway's MAC; if missing, broadcasts ARP request → gateway replies with its MAC → cached
+3. **HTTP/HTTPS Request** — IP packet built, handed to NIC, encapsulated into an Ethernet frame addressed to the gateway's MAC → router forwards toward the internet
+   - If HTTPS: TLS handshake happens first, then encrypted HTTP request/response flow
+4. **DHCP** (only when the device first joins the network) — DORA process assigns the IP, subnet mask, gateway, and DNS server that make all of the above possible in the first place
+
+### Interdependencies
+- DNS relies on IP (name → address translation)
+- HTTP/HTTPS rides on IP packets
+- DHCP provides the IP that lets a device participate at all
+- ARP maps IP → MAC so Ethernet frames can actually be delivered locally
+- HTTPS relies on TLS/SSL, built on top of TCP
+
+---
+
+## 🛠️ Practical Walkthroughs
+
+### 1. DNS Resolution
+```bash
+nslookup www.google.com      # Windows
+dig www.google.com           # macOS/Linux
+```
+Shows resolved IP(s) + which DNS server answered. Try:
+```bash
+dig mx google.com            # mail exchanger records
+```
+
+### 2. DHCP-Assigned Configuration
+```bash
+ipconfig /all        # Windows — shows DHCP server + lease times
+ifconfig              # macOS
+ip addr show          # Linux
+```
+Confirms IP, subnet mask, gateway, DNS servers assigned dynamically.
+
+### 3. ARP Cache
+```bash
+arp -a        # Windows/macOS/Linux
+ip neigh      # Linux alternative
+```
+Shows IP→MAC mappings your device has learned — should include your default gateway.
+
+### 4. HTTP Headers (Browser DevTools)
+1. Open DevTools (F12) → Network tab
+2. Visit `http://neverssl.com` (plain HTTP demo site)
+3. Click the main document request → Headers tab
+4. Observe request headers (`User-Agent`, `Accept`, `Host`) and response headers (`Content-Type`, `Server`, status line)
+
+### 5. HTTPS Headers (Browser DevTools)
+1. Same DevTools setup, visit `https://www.google.com`
+2. Note `HTTP/2 200 OK` (or HTTP/3), modern headers like `Sec-CH-UA`
+3. Actual payload is encrypted in transit — DevTools can show it decrypted because your browser holds the session keys from the TLS handshake
+
+---
+
+## ⚠️ Common Mistakes & Troubleshooting
+
+### DNS
+| Issue | Fix |
+|---|---|
+| Typo in domain | Double-check spelling; test with `ping`/`nslookup`/`dig` |
+| Wrong DNS server config | Check via `ipconfig /all` or `cat /etc/resolv.conf`; try `nslookup www.google.com 8.8.8.8` to bypass local DNS |
+| Firewall blocking UDP 53 | Check local/network firewall rules |
+
+### DHCP
+| Issue | Fix |
+|---|---|
+| Static IP conflicts with DHCP-assigned IP | Keep static IPs outside the DHCP pool range |
+| DHCP server unreachable | Check router status/restart; confirm client is on correct network segment |
+
+### ARP
+| Issue | Fix |
+|---|---|
+| Stale/incorrect ARP cache | Clear it: `arp -d *` (Windows) or `sudo ip neigh flush all` (Linux/macOS) |
+| Suspected ARP spoofing | Check `arp -a` for unexpected MAC on a known IP; use NIDS for detection |
+
+### HTTPS
+| Error | Meaning/Fix |
+|---|---|
+| `NET::ERR_CERT_AUTHORITY_INVALID` | Check system clock sync; cert may genuinely be invalid/expired |
+| `NET::ERR_SSL_PROTOCOL_ERROR` / cipher mismatch | TLS version/cipher incompatibility, often an old client or server |
+
+---
+
+## 🛡️ Defensive Engineering
+
+### HTTP/HTTPS
+- Enforce **HSTS** to force HTTPS-only connections
+- Use strong cipher suites; disable SSLv3/TLS 1.0/1.1
+- **Input validation** on all POST/GET data (prevent SQLi, XSS)
+- **CSP** headers to restrict what resources can load
+- **Rate limiting** on login/API endpoints
+
+### DNS
+- Deploy **DNSSEC** on authoritative servers
+- Use trusted recursive resolvers (Cloudflare, Google, or hardened internal)
+- DNS firewalling/filtering against known-malicious domains
+- Monitor DNS logs for anomalies (spikes in NXDOMAIN, suspicious query patterns)
+- Use **DoH/DoT** to encrypt DNS queries in transit
+
+### DHCP
+- **DHCP snooping** on managed switches — validates legit vs malicious DHCP server messages, builds IP-MAC binding table
+- Static IPs for critical infrastructure (servers, routers, firewalls)
+- Harden the DHCP server itself
+- Defend against **DHCP starvation attacks** (pool exhaustion) via snooping + rate limiting
+
+### ARP
+- **Static ARP entries** for critical devices (manual, not scalable)
+- **Dynamic ARP Inspection (DAI)** on managed switches — validates ARP against DHCP snooping binding table
+- Network segmentation (VLANs) to limit spoofing blast radius
+- NIDS to detect ARP spoofing patterns
+
+---
+
+## 📝 Chapter Summary
+
+- **HTTP** — request/response backbone of the web; methods, status codes, headers, version evolution (1.0 → 1.1 → 2 → 3/QUIC)
+- **HTTPS** — HTTP + TLS/SSL for encryption, authentication, integrity via the TLS handshake and CA-issued certificates
+- **DNS** — hierarchical name resolution (root → TLD → authoritative), various record types, DNSSEC for integrity
+- **DHCP** — automated IP assignment via DORA, leased not permanent
+- **ARP** — resolves IP → MAC on the local network, enabling Ethernet frame delivery
+- All five protocols interlock in a single page-load: DHCP gets you online, DNS finds the destination, ARP gets the packet to your gateway, HTTP(S) carries the actual content
+
+---
+
+## ❓ Exercises (self-test)
+
+1. What's DNS's core purpose? What breaks if DNS goes down globally?
+2. Differentiate HTTP vs HTTPS — what security benefits does HTTPS add, and how?
+3. Walk through the 4 steps of DORA. Why are broadcasts used?
+4. Why is ARP needed even though devices use IP addresses? What layer/mapping does it handle?
+5. Use `nslookup`/`dig` to find `www.wikipedia.org`'s IP, then its MX records — what does the MX output tell you about how Wikipedia handles email?
+
+---
+
+## ➡️ Next Up
+**P1-C09: LAN, MAN, and WAN Architectures** — network scale and topology: local, metropolitan, and wide-area network design.
+
+---
+*Tags: `#networking` `#http` `#https` `#dns` `#dhcp` `#arp` `#part1` `#foundations`*

@@ -1,0 +1,265 @@
+# P1-C07: TCP and UDP Deep Dive
+
+> **Part 1 — Networking Fundamentals**
+> Source: My Ebook, Author Patrick Luan de Mattos
+> Category: `my-ebook` | Level: Intermediate
+
+---
+
+## 🎯 Learning Objectives
+
+- [ ] Distinguish TCP vs UDP core design philosophies
+- [ ] Explain TCP's reliability, ordering, and flow control mechanisms
+- [ ] Explain how UDP trades reliability for speed/simplicity
+- [ ] Analyze architectural implications of choosing TCP vs UDP
+- [ ] Match real-world apps to the right protocol
+- [ ] Know security implications/vulnerabilities of each
+- [ ] Identify TCP vs UDP traffic using basic tools
+
+---
+
+## 🧭 Why Transport Layer Protocols Exist
+
+The Network Layer (IP) only gets packets to the general destination — it doesn't guarantee order, completeness, delivery confirmation, or pacing. Transport layer protocols (**TCP**, **UDP**) sit between Network and Application layers and solve exactly that: reliable ordered delivery (TCP) or fast simple delivery (UDP).
+
+---
+
+## 🐢 TCP — The Reliable Workhorse
+
+**Connection-oriented**, guarantees accurate, ordered, lossless delivery. Used where data integrity matters: web browsing, email, file transfer.
+
+### Three-Way Handshake
+```
+Client                          Server
+  SYN (Seq=X)        --------->
+                     <---------  SYN-ACK (Seq=Y, Ack=X+1)
+  ACK (Ack=Y+1)      --------->
+        Connection Established
+```
+1. **SYN** — client requests connection
+2. **SYN-ACK** — server acknowledges + agrees to connect
+3. **ACK** — client confirms
+
+Both sides agree on initial sequence numbers before any data flows.
+
+### Reliability Mechanisms
+
+| Mechanism | Purpose |
+|---|---|
+| **Sequence numbers** | Every byte numbered → receiver reassembles in correct order |
+| **Acknowledgments (ACKs)** | Receiver confirms each segment; sender retransmits if no ACK within timeout |
+| **Checksums** | Detect corruption in header + payload |
+
+### Flow Control — Sliding Window
+- Receiver advertises a **receive window** (buffer space available)
+- Sender can only send up to that window size
+- As receiver processes/frees buffer, it updates the window → sender can send more
+- Prevents a fast sender from overwhelming a slow receiver
+
+### Congestion Control
+Prevents overwhelming the **network itself** (not just the receiver):
+
+| Phase | Behavior |
+|---|---|
+| **Slow Start** | Sending rate starts low, grows exponentially until threshold/congestion |
+| **Congestion Avoidance** | After threshold, growth becomes linear |
+| **Fast Retransmit/Fast Recovery** | Quickly retransmits lost segments without waiting for full timeout |
+
+### TCP Trade-offs
+- ⬆️ Overhead (headers, handshake, state tracking)
+- ⬆️ Latency (waiting for ACKs/retransmits)
+- ⬆️ Complexity
+
+---
+
+## 🐇 UDP — The Speedy, Simple Option
+
+**Connectionless**. Sends datagrams independently — no handshake, no guarantees.
+
+| Feature | Behavior |
+|---|---|
+| Connection | None — each datagram independent |
+| Reliability | None — no ACKs, no retransmission |
+| Ordering | Not guaranteed |
+| Flow/Congestion control | None |
+| Header size | 8 bytes (vs TCP's 20+ bytes) |
+
+### UDP Trade-offs
+- ❌ No reliability — app must build its own if needed
+- ❌ No flow/congestion control — can flood receiver or network
+- ✅ Simplicity and speed — ideal for time-sensitive apps
+
+---
+
+## ⚖️ TCP vs UDP — Side by Side
+
+| Feature | TCP | UDP |
+|---|---|---|
+| Reliability | High (guaranteed) | Low (best-effort) |
+| Ordering | Guaranteed | Not guaranteed |
+| Connection | Connection-oriented (handshake) | Connectionless |
+| Speed | Slower (overhead) | Faster (minimal overhead) |
+| Overhead | High | Low |
+| Flow control | Yes | No |
+| Congestion control | Yes | No |
+| Use cases | HTTP/S, SMTP, FTP, SSH | Streaming, gaming, DNS, VoIP, DHCP |
+
+### Why each app picks what it picks
+
+| App | Protocol | Why |
+|---|---|---|
+| Web browsing (HTTP/S) | TCP | Missing HTML/CSS breaks the page — must be complete & ordered |
+| Video streaming (Netflix/YouTube) | UDP (often RTP-based) | A dropped frame > a full pause waiting for retransmit |
+| Online gaming | UDP | Low latency > guaranteed delivery of every packet |
+| DNS | UDP (TCP fallback for large responses/zone transfers) | Query is small & fast; client just re-sends if lost |
+| VoIP | UDP | Brief audio dropout beats unacceptable delay |
+
+---
+
+## 🏗️ Architecture-Level View
+
+### TCP — A State Machine
+Maintains real per-connection state:
+- **Connection states:** CLOSED, LISTEN, SYN-SENT, SYN-RECEIVED, ESTABLISHED, FIN-WAIT-1/2, CLOSE-WAIT, CLOSING, LAST-ACK, TIME-WAIT
+- **Sequence numbers**, **window sizes** (receive window, congestion window, slow-start threshold), **timers** (retransmission, keep-alive), **send/receive buffers**
+
+**TCP Header (simplified):** Source/Dest Port, Sequence Number, Acknowledgment Number, Data Offset, Flags (URG/ACK/PSH/RST/SYN/FIN/ECE/CWR), Window Size, Checksum, Urgent Pointer, Options, Payload.
+
+### UDP — Stateless Simplicity
+No connection info kept — each datagram independent.
+
+**UDP Header (simplified):** Source/Dest Port, Length, Checksum (optional — zero = not computed), Payload.
+
+### Architectural Implications
+
+| Aspect | TCP | UDP |
+|---|---|---|
+| Resource use | Higher (memory/CPU for state) | Lower (stateless) |
+| Scalability | Harder for massive concurrent connections | Better for large-scale/real-time apps |
+| Firewalls | Stateful — tracks connections, auto-allows return traffic | Often allowed by port only, no true "connection" tracking |
+| IDS/IPS | Can analyze sequences/state for anomalies | Harder — no inherent order/reliability to check against |
+| App responsibility | Mostly handled by TCP itself | App must handle: reassembly, error correction, retransmission, rate limiting |
+
+---
+
+## 🛠️ Practical Walkthroughs
+
+### 1. Observe the TCP Handshake with `tcpdump`
+
+**Terminal 1 (server):**
+```bash
+python3 -m http.server 8000
+```
+
+**Terminal 2 (capture):**
+```bash
+sudo tcpdump -i <your_interface> port 8000 -n
+```
+
+**Trigger traffic:**
+```bash
+curl http://localhost:8000
+```
+
+**Expected output pattern:**
+```
+... Flags [S], seq ...      ← SYN (client → server)
+... Flags [S.], seq ... ack ...   ← SYN-ACK (server → client)
+... Flags [.], ack ...      ← ACK (client → server) — handshake complete
+```
+
+### 2. Observe UDP Traffic (DNS) with `tcpdump`
+
+```bash
+sudo tcpdump -i <your_interface> udp port 53 -n
+```
+
+**In another terminal:**
+```bash
+dig @8.8.8.8 example.com
+```
+
+**Expected output:**
+```
+<your_ip>.<port> > 8.8.8.8.53: ... [1 A?] example.com.
+8.8.8.8.53 > <your_ip>.<port>: ... A 93.184.216.34
+```
+No handshake, no sequence/ack numbers — just request → response.
+
+### 3. Identify TCP/UDP Sockets with `netstat`
+
+**Listening sockets:**
+```bash
+netstat -tulnp
+```
+- `-t` TCP, `-u` UDP, `-l` listening only, `-n` numeric, `-p` show PID/program
+
+**Active TCP connections:**
+```bash
+netstat -tn
+```
+Look for `ESTABLISHED` state; `Local Address` = your IP:port, `Foreign Address` = remote IP:port.
+
+**Recv-Q / Send-Q:**
+- **Recv-Q** — data received but not yet read by the app (high = app is slow to process)
+- **Send-Q** — data sent but not yet ACKed (high = congestion or slow receiver)
+- Less meaningful for UDP reliability, but still shows buffering
+
+---
+
+## ⚠️ Common Mistakes
+
+- **"UDP is always faster"** — not if the app has to build its own reliability layer on top; profile before assuming.
+- **Firewall blocking handshake packets** — check SYN/SYN-ACK/ACK aren't dropped for TCP; check both directions are open for UDP (harder since there's no connection state to track).
+- **App doesn't handle UDP packet loss** — apps expecting ordered/reliable data will break on raw UDP; needs explicit handling.
+- **Misreading `netstat` output** — don't confuse LISTEN (waiting for connections) with ESTABLISHED (active connection); understand Recv-Q/Send-Q correctly.
+
+---
+
+## 🛡️ Defensive Engineering
+
+### TCP Security
+
+| Threat | Defense |
+|---|---|
+| **SYN Flood** — flood of SYNs, handshake never completed, ties up server resources | SYN cookies (no resource allocation until ACK returns valid cookie); SYN rate limiting; firewall/IDS rules |
+| **TCP Reset (RST) attacks** — forged RST to kill a connection | Strong random initial sequence numbers (ISNs); network segmentation to prevent sniffing |
+| **Port scans** (e.g. Nmap) | Firewall — only open necessary ports; IDS to detect scan patterns; rate-limit connection attempts |
+
+### UDP Security
+
+| Threat | Defense |
+|---|---|
+| **UDP amplification/reflection** — spoofed source IP + small query → server sends huge response to victim | Ingress filtering (drop packets with spoofed source IPs at network edge); rate limiting; disable open "any" queries on DNS servers |
+| **UDP flood** — bombard victim with UDP packets | Firewall/IPS blocking; rate limiting; DDoS mitigation services |
+| **App-level vulnerabilities** — e.g. game server not validating client data | Robust input validation, careful protocol/state design |
+
+---
+
+## 📝 Chapter Summary
+
+- **TCP:** connection-oriented, reliable, ordered — handshake + sequence numbers + ACKs + flow control + congestion control. Higher overhead/latency, used where integrity matters.
+- **UDP:** connectionless, unreliable, unordered — minimal header, no guarantees. Lower overhead, used where speed matters more than perfection.
+- Protocol choice is architectural: affects resource use, scalability, firewall/IDS behavior, and what the application itself must handle.
+- Each protocol has its own attack surface: TCP → SYN floods, RST attacks, port scans; UDP → amplification/reflection attacks, floods.
+
+---
+
+## ❓ Exercises (self-test)
+
+1. Describe a scenario where UDP would be a poor choice, and why.
+2. What's the role of TCP sequence numbers? What breaks without them?
+3. What's the difference between TCP's flow control and congestion control?
+4. Run `netstat -tulnp` — identify 3 TCP services and 1 UDP service listening on your machine.
+5. Capture a device's UDP traffic (e.g. smart TV checking for updates) with `tcpdump`/Wireshark — what patterns do you see?
+6. Designing a real-time collaborative document editor — TCP or UDP for sync? Justify it.
+7. Explain briefly how a TCP SYN flood works and why it's effective.
+8. *(Source note: original exercise 8 was cut off in the source material — "Practical-Safe: Using ping with the `-..." — flag to confirm with original ebook if needed.)*
+
+---
+
+## ➡️ Next Up
+**P1-C08: HTTP, HTTPS, DNS, DHCP, and ARP** — the key application/network-support protocols that ride on top of TCP/UDP.
+
+---
+*Tags: `#networking` `#tcp` `#udp` `#transport-layer` `#part1` `#foundations`*

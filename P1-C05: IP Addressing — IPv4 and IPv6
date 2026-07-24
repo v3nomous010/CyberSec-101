@@ -1,0 +1,222 @@
+# P1-C05: IP Addressing — IPv4 and IPv6
+
+> **Part 1 — Networking Fundamentals**
+> Source: My Ebook, Author Patrick Luan de Mattos
+> Category: `my-ebook` | Level: Intermediate
+
+---
+
+## 🎯 Learning Objectives
+
+- [ ] Understand the purpose of IP addresses in network communication
+- [ ] Deconstruct IPv4 and IPv6 address structure/notation
+- [ ] Explain why the internet is transitioning from IPv4 → IPv6
+- [ ] Understand hierarchical IP allocation (IANA → RIR → ISP → end-user)
+- [ ] Differentiate public vs private IP space
+- [ ] Perform basic IPv4 subnetting calculations
+- [ ] Know IPv6's key advantages and address types
+- [ ] Connect IP addressing to defensive security practice
+
+---
+
+## 🧭 Why IP Addresses Exist
+
+IP = the addressing scheme that lets devices find each other across networks. Without it, packets have no destination — like mail with no envelope.
+
+---
+
+## 🔢 IPv4 — The Legacy System
+
+- **32-bit address**, written in **dotted-decimal notation**: 4 octets (8 bits each), 0–255, separated by dots
+- Example: `192.168.1.1` → binary `11000000.10101000.00000001.00000001`
+
+### The Exhaustion Problem
+- Only **2³² ≈ 4.3 billion** possible addresses
+- Explosive growth (PCs, phones, servers, IoT) burned through this space → **IPv4 exhaustion**
+
+### Classful Addressing (historical)
+
+| Class | First Octet Range | Purpose |
+|---|---|---|
+| A | 1–126 | Very large networks |
+| B | 128–191 | Medium/large networks |
+| C | 192–223 | Small networks |
+| D | 224–239 | Multicast (reserved) |
+| E | 240–255 | Experimental (reserved) |
+
+Inefficient — e.g. a Class C net gives 254 hosts even if you only need a handful.
+
+### Subnetting (temporary fix)
+Borrow bits from the **host** portion to create a **subnet** portion.
+
+- **Network ID** — identifies the network
+- **Host ID** — identifies a device within it
+- **Subnet Mask** — 32-bit number; `1`s = network/subnet portion, `0`s = host portion
+
+**Example:** `192.168.1.0/24` (mask `255.255.255.0`) → borrow 1 bit → `/25` (mask `255.255.255.128`)
+
+| Subnet | Network ID | Usable Hosts | Broadcast |
+|---|---|---|---|
+| Subnet 1 | 192.168.1.0 | .1 – .126 | 192.168.1.127 |
+| Subnet 2 | 192.168.1.128 | .129 – .254 | 192.168.1.255 |
+
+### Private vs Public IPv4
+
+| Class | Private Range | CIDR |
+|---|---|---|
+| A | 10.0.0.0 – 10.255.255.255 | /8 |
+| B | 172.16.0.0 – 172.31.255.255 | /12 |
+| C | 192.168.0.0 – 192.168.255.255 | /16 |
+
+- Private addresses aren't routable on the public internet
+- **NAT (Network Address Translation)** lets many private-IP devices share one public IP (done by your router)
+
+---
+
+## 🌐 IPv6 — The Modern Standard
+
+- **128-bit address**, written in **hexadecimal**, 8 groups of 16 bits, separated by colons
+- Example: `2001:0db8:85a3:0000:0000:8a2e:0370:7334`
+
+### Simplification rules
+1. **Leading zero omission** per group: `0db8` → `db8`, `0000` → `0`
+2. **Consecutive all-zero group compression** with `::` (only usable **once** per address)
+
+`2001:0db8:85a3:0000:0000:8a2e:0370:7334` → `2001:db8:85a3::8a2e:370:7334`
+
+### Key Advantages of IPv6
+
+| Feature | Benefit |
+|---|---|
+| 2¹²⁸ address space | Exhaustion effectively solved |
+| Simplified, fixed-length header | Faster router processing; extras via extension headers |
+| SLAAC (stateless autoconfig) | Devices self-assign addresses, no DHCP required (DHCPv6 still optional) |
+| IPsec built-in (mandatory) | Native end-to-end encryption/authentication |
+| NAT not required | True end-to-end connectivity |
+| Better mobility/multicast support | — |
+
+### IPv6 Address Types
+
+| Type | Description | Notes |
+|---|---|---|
+| **Unicast — GUA** | Global Unicast Address | Routable, like public IPv4 |
+| **Unicast — Link-Local** | Local segment only, auto-configured | Starts `fe80::` |
+| **Unicast — ULA** | Unique Local Address | Like private IPv4, starts `fd00::/8` |
+| **Multicast** | Delivered to all interfaces in a group | — |
+| **Anycast** | Delivered to nearest interface in a group | — |
+
+### The Transition
+Full IPv4→IPv6 cutover isn't feasible — internet is too vast. Common approaches:
+- **Dual-stack** — devices/networks run both simultaneously
+- **Tunneling** — e.g. 6to4, Teredo, bridges IPv4 and IPv6 networks
+
+---
+
+## 🏗️ Architecture Comparison
+
+| Aspect | IPv4 | IPv6 |
+|---|---|---|
+| Address space | 32-bit (~4.3B) | 128-bit (2¹²⁸) |
+| Notation | Dotted-decimal | Hex + colons |
+| Header | Variable length (options field) | Fixed length + extension headers |
+| Address resolution | ARP | NDP (Neighbor Discovery Protocol) |
+| Autoconfig | DHCP (dynamic) or manual | SLAAC (stateless) or DHCPv6 |
+| NAT | Essential (address conservation) | Not required |
+| Security | IPsec optional | IPsec mandatory/native |
+| Fragmentation | Routers can fragment packets (overhead + security concern) | Handled differently, less overhead |
+
+### Hierarchical Allocation (both protocols)
+```
+IANA → Regional Internet Registries (RIRs: ARIN, RIPE NCC, etc.)
+     → Local Internet Registries / ISPs
+     → End-users
+```
+- IPv6: ISPs typically hand end-users **/48 or /56** prefixes — generous room to subnet internally.
+
+---
+
+## 🛠️ Practical Walkthroughs
+
+### 1. Find your own IPv4/IPv6 address
+
+**Windows:**
+```
+ipconfig /all
+```
+Look for `IPv4 Address` and `IPv6 Address` lines under your active adapter.
+
+**macOS/Linux:**
+```bash
+ifconfig
+```
+Look for `inet` (IPv4) and `inet6` (IPv6, link-local starts `fe80::`).
+
+### 2. Test reachability
+```bash
+ping 192.168.1.1        # your router (private IP)
+ping 8.8.8.8             # public DNS (Google)
+ping -6 2001:4860:4860::8888   # IPv6 (or ping6 on some systems)
+```
+- `Reply from...` = success (+ response time)
+- `Request timed out` = no reply — unreachable, ICMP blocked, or network issue
+- `Destination host unreachable` = local network/router doesn't know the route
+
+### 3. Find your public IP
+Visit a "what's my IP" site (e.g. whatismyipaddress.com, icanhazip.com) — this shows the address your **router** presents to the internet after NAT, not your private LAN IP.
+
+---
+
+## ⚠️ Common Mistakes
+
+- **Wrong subnet mask** → broken communication within/between subnets. Double-check binary math.
+- **Typos in IP/IPv6 notation** → wrong destination or invalid address. For IPv6, using `::` more than once is invalid.
+- **IP address conflicts** → two devices, same IP, unpredictable behavior.
+- **Missing default gateway** → device can't reach anything outside its local network.
+- **Firewall blocking ICMP** → `ping` fails even though the destination is actually fine.
+- **IPv6 link-local only** → device stuck with only `fe80::` because it never got a GUA from the router (check SLAAC/DHCPv6 config).
+
+---
+
+## 🛡️ Defensive Engineering Notes
+
+| Concept | Defensive Action |
+|---|---|
+| Network segmentation | Subnet/VLAN by security zone (servers, workstations, IoT, guest Wi-Fi) + ACLs between segments to limit lateral movement |
+| Private IP space | Keep internal systems on private ranges; audit NAT config regularly to prevent accidental exposure |
+| IP inventory | Use IPAM; scan for rogue/unexpected IPs; enforce assignment/reclamation policy |
+| IPv6-specific | Disable IPv6 if unused (reduces attack surface); secure SLAAC (watch for rogue routers advertising bad prefixes); firewall ICMPv6 properly (different from ICMPv4); enforce IPsec policy if in use |
+| IDS/IPS | Monitor both IPv4 and IPv6 traffic at perimeter and inter-zone points |
+| Rate limiting | Limit connection/packet rates per IP/subnet to blunt DoS attempts |
+
+---
+
+## 📝 Chapter Summary
+
+- IPv4: 32-bit, dotted-decimal, exhaustion problem, solved short-term via subnetting + private ranges + NAT
+- IPv6: 128-bit, hex notation, massively larger space, simplified header, SLAAC, mandatory IPsec, ideally no NAT
+- Both use hierarchical allocation: IANA → RIR → ISP → end-user
+- Transition is gradual: dual-stack + tunneling bridge the gap
+- IP addressing knowledge underpins segmentation, NAT design, IPAM, and IDS/IPS strategy
+
+---
+
+## ❓ Exercises (self-test)
+
+1. Why was IPv4 address exhaustion a major problem for internet growth?
+2. What's the core notation difference between IPv4 and IPv6?
+3. Run `ipconfig /all` or `ifconfig` — list your interface's IPv4 and IPv6 addresses.
+4. Ping your default gateway. What does success tell you about local connectivity?
+5. What is NAT, and why was it necessary for IPv4?
+6. Name two IPv6 advantages beyond just address space size.
+7. Find your public IPv4 (and if possible, IPv6) address via a browser.
+8. Designing a small office network — what's the benefit of private IPv4 ranges?
+
+---
+
+## ➡️ Next Up
+**P1-C06: Network Protocols and Packet Analysis** — protocols at each layer (TCP, UDP, HTTP, DNS), packet encapsulation in practice, and intro tools for traffic analysis.
+
+*(Series note: original source lists next as "P1.6: Subnetting with Practical Examples" — confirm actual chapter order when compiling.)*
+
+---
+*Tags: `#networking` `#ipv4` `#ipv6` `#subnetting` `#part1` `#foundations`*
